@@ -1,0 +1,14 @@
+{
+  "addParentData": false,
+  "directUrls": [
+    "https://www.instagram.com/{{ $json['user name'] }}/"
+  ],
+  "enhanceUserSearchWithFacebookPage": false,
+  "isUserReelFeedURL": false,
+  "isUserTaggedFeedURL": false,
+  "onlyPostsNewerThan": "15 days",
+  "resultsLimit": 30,
+  "resultsType": "posts",
+  "searchLimit": 1,
+  "searchType": "hashtag"
+}
