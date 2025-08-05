@@ -82,7 +82,7 @@
             },
             {
               "name": "Authorization",
-              "value": "Bearer apify_api_jaEc3E4nRegthcxEeUkO7wWM8wHZNk0qCFk4"
+              "value": "Bearer Your Apify API Key"
             }
           ]
         },
