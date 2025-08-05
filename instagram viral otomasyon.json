@@ -1,0 +1,422 @@
+{
+  "name": "instagram viral otomasyon",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "70505095-045c-4e1e-987d-73fb7acb43f5",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        -160
+      ],
+      "id": "cea2d790-bc39-471c-891b-aea348a95279",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17V2Irk69LK07mc5Uwj7_KJ8Nsy4facgY-nirIKlExSE",
+          "mode": "list",
+          "cachedResultName": "list of creators",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17V2Irk69LK07mc5Uwj7_KJ8Nsy4facgY-nirIKlExSE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sayfa1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17V2Irk69LK07mc5Uwj7_KJ8Nsy4facgY-nirIKlExSE/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        208,
+        0
+      ],
+      "id": "19dc2a27-59e4-4087-9bd4-8d6256ff9b2a",
+      "name": "instagram kullanıcı adı çekme",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xV9Ay4uVUdDv3tPy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer apify_api_jaEc3E4nRegthcxEeUkO7wWM8wHZNk0qCFk4"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"addParentData\": false,\n  \"directUrls\": [\n    \"https://www.instagram.com/{{ $json['user name'] }}/\"\n  ],\n  \"enhanceUserSearchWithFacebookPage\": false,\n  \"isUserReelFeedURL\": false,\n  \"isUserTaggedFeedURL\": false,\n  \"onlyPostsNewerThan\": \"15 days\",\n  \"resultsLimit\": 30,\n  \"resultsType\": \"posts\",\n  \"searchLimit\": 1,\n  \"searchType\": \"hashtag\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        688,
+        0
+      ],
+      "id": "479d9935-3e8b-4fc0-96a4-2a5bc5a0fcdd",
+      "name": "APIFY API REQUEST"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        432,
+        0
+      ],
+      "id": "d886ffbe-9a6d-439b-abfc-8a770f4a1cc4",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "videoPlayCount",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        912,
+        0
+      ],
+      "id": "69dba2ee-d5a0-4914-8813-dfa83a61611b",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1LgX_dhnOqdiBvt5JgmiaX8gfsoAMnBlbTV8JDHCEa6c",
+          "mode": "list",
+          "cachedResultName": "Viral Videos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LgX_dhnOqdiBvt5JgmiaX8gfsoAMnBlbTV8JDHCEa6c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sayfa1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LgX_dhnOqdiBvt5JgmiaX8gfsoAMnBlbTV8JDHCEa6c/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Creator": "={{ $json.inputUrl }}",
+            "Reel URL": "={{ $json.url }}",
+            "Caption/Text/Copy": "={{ $('APIFY API REQUEST').item.json.caption }}",
+            "Likes": "={{ $('APIFY API REQUEST').item.json.likesCount }}",
+            "Views": "={{ $('APIFY API REQUEST').item.json.videoPlayCount }}",
+            "Comments": "={{ $('APIFY API REQUEST').item.json.firstComment }}",
+            "Date and Time": "={{ $('APIFY API REQUEST').item.json.timestamp }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Creator",
+              "displayName": "Creator",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reel URL",
+              "displayName": "Reel URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Caption/Text/Copy",
+              "displayName": "Caption/Text/Copy",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Views",
+              "displayName": "Views",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Likes",
+              "displayName": "Likes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Comments",
+              "displayName": "Comments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date and Time",
+              "displayName": "Date and Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "b7fbd680-634a-4eb7-b9ac-53f0a5be29a2",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xV9Ay4uVUdDv3tPy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "17V2Irk69LK07mc5Uwj7_KJ8Nsy4facgY-nirIKlExSE",
+          "mode": "list",
+          "cachedResultName": "list of creators",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17V2Irk69LK07mc5Uwj7_KJ8Nsy4facgY-nirIKlExSE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sayfa1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17V2Irk69LK07mc5Uwj7_KJ8Nsy4facgY-nirIKlExSE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "user name": "={{ $('instagram kullanıcı adı çekme').item.json['user name'] }}",
+            "status": "bitti"
+          },
+          "matchingColumns": [
+            "user name"
+          ],
+          "schema": [
+            {
+              "id": "user name",
+              "displayName": "user name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1328,
+        0
+      ],
+      "id": "ef824d63-1d13-4f3e-a9f6-cbbddcba3dcd",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xV9Ay4uVUdDv3tPy",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "instagram kullanıcı adı çekme",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "instagram kullanıcı adı çekme",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "instagram kullanıcı adı çekme": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "APIFY API REQUEST",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "APIFY API REQUEST": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e31c2156-beec-412d-812a-e140735beec6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7e05551839b82cf16e8a44dac6519729d3aab1dbbc80f186b6098099617b652c"
+  },
+  "id": "k7IrL8r76l1IitAd",
+  "tags": []
+}
